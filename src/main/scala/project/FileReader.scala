@@ -1,0 +1,6 @@
+package project
+
+
+object FileReader {
+
+}
