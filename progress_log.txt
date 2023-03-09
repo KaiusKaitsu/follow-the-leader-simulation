@@ -1,3 +1,4 @@
+6.3.23 {
 Finally, the first proper commit, includes most of the classes and objects of the program.
 Working sketch for the GUI. Next will be objects simulation and simulationDraw.
 With working GUI it will be easier to implement and test the simulants and their physics.
@@ -5,3 +6,4 @@ With working GUI it will be easier to implement and test the simulants and their
 Only thing that has been tested is the mock gui (It "works")
 workload till this point has been around 5 hours (not including the planing phase)
 I'm knowingly lagging behind the plan for now, but I have completed other courses exercises to have this week solely for this project.
+}
