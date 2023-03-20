@@ -7,3 +7,18 @@ Only thing that has been tested is the mock gui (It "works")
 workload till this point has been around 5 hours (not including the planing phase)
 I'm knowingly lagging behind the plan for now, but I have completed other courses exercises to have this week solely for this project.
 }
+
+20.3.23 {
+Big changes. Testing out the merging of simulation and UserInterface.
+Since all the logic is operated by individual simulants there is really not too much use for a dedicated simulation object.
+Leader and followers are now both Simulants and they are differed by the constructor isLeader: boolean.
+
+Testing file added but ScalaTest isn't working too well so the Vector2D test isnt working anymore. But the logic holds. Test for the simulationDraw also exists.
+
+Some difficulties have been coming up with the complexity of the program growing. This is why steps torwards simplifying the dependencies between objects have been made. 
+
+during the week 6.3 - 13.3 work load was around 15 hours and last week no progress was made since I was doing other exercises in advance to dedicate this week once again for 
+the project. In terms of scheduale im roughly in phase.
+
+Plan is to have a working simulation by 3.4, not perfect but debuggable. 
+}
