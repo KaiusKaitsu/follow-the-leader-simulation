@@ -1,14 +1,20 @@
 package project
 
 import scala.swing.*
-import project.simulationDraw
+
 import javax.swing.ImageIcon
 import project.Simulant
+
 import scala.collection.parallel.immutable.ParSeq
 import project.*
 import project.config.*
+
+import java.awt.{Color, Graphics2D, RenderingHints}
+import java.awt.event.{ActionEvent, ActionListener}
+import java.awt.geom.Ellipse2D
 import scala.concurrent.*
 import scala.concurrent.duration.Duration
+import scala.swing.event.ButtonClicked
 
 
 
@@ -18,41 +24,47 @@ object SimGUI extends SimpleSwingApplication {
   private val settingsWidth = 250
   private val settingsHeight = 500
 
+  var leader: Simulant = Simulant(true)
+  var followers: ParSeq[Simulant] = ParSeq(Simulant(false), Simulant(false))
+  private var simSpeed: Int = 1
+
+
   def top: Frame = new MainFrame:
     title = "Follow the leader sim"
 
-    val areaPanel = new BoxPanel(Orientation.Vertical):
+    val areaPanel = new BoxPanel(Orientation.Vertical){
       preferredSize = new Dimension(areaWidth, areaHeight)
       background = java.awt.Color.GRAY
-      contents += new Label {
-        icon = new ImageIcon(simulationDraw(leader,followers).test)
-        horizontalAlignment = Alignment.Center
-        verticalAlignment = Alignment.Center
-      }
-      xLayoutAlignment = 0.5f
-      yLayoutAlignment = 0.5f
 
+      override def paintComponent(pic: Graphics2D) =
+        pic.fillRect(0, 0, areaWidth, areaHeight)
+        pic.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        pic.setColor(Color.RED)
+        followers.foreach(i => pic.fill(Ellipse2D.Double(i.readPos._1, i.readPos._2, 10, 10)))
+        pic.setColor(Color.BLUE)
+        pic.fill(Ellipse2D.Double(leader.readPos._1, leader.readPos._2, 10, 10))
+    }
     val settingsPanel = new BoxPanel(Orientation.Vertical):
       preferredSize = new Dimension(settingsWidth, settingsHeight)
 
-      for i <- 1 to 10 do
+      for i <- 1 to 9 do
         contents += new BoxPanel(Orientation.Horizontal):
           contents += new Label(s"Setting $i: ")
           contents += new TextField(10)
         contents += Swing.VStrut(5)
+      val step =  new Button("One step")
+      contents += step
+      step.reactions += {
+        case ButtonClicked(_) =>
+          restart()
+          areaPanel.repaint()}
 
     val splitPane = new SplitPane(Orientation.Vertical, settingsPanel, areaPanel):
       dividerLocation = settingsWidth
 
     contents = splitPane
 
-  /** following has been migrated from simulation object that was merged with SimGUI */
 
-  var leader: Simulant = Simulant(true)
-  var followers: ParSeq[Simulant] = ParSeq(Simulant(false),Simulant(false))
-  var simSpeed: Int = 1
-
-  var simDraw = simulationDraw(leader, followers)
 
   /** Changes the sim speed. Sim speed can be a integer from 1 to 10 */
   def changeSimSpeed(x: Int) =
@@ -64,16 +76,14 @@ object SimGUI extends SimpleSwingApplication {
   def restart() =
     followers.foreach(_.restart())
     leader.restart()
-    simDraw.draw()
 
   def pause() =
     wait(100)
 
   def update() =
-    if isPaused then pause() else if config.restart then restart() else
-      followers.foreach(_.update())
-      leader.update()
-      simDraw.draw()
+  //  if isPaused then pause() else if config.restart then restart() else
+   followers.foreach(_.update())
+   leader.update()
 
 }
 

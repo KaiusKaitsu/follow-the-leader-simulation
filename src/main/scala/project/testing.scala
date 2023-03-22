@@ -3,22 +3,12 @@ package project
 import project.*
 import scala.swing.*
 import java.awt.image.BufferedImage
-import project.simulationDraw
 import javax.swing.ImageIcon
 import project.Simulant
 import scala.collection.parallel.immutable.ParSeq
 
 /** TestImage is used to test created and external images to determine how well simulationDraw works*/
-object TestImage extends SimpleSwingApplication {
-  val image: BufferedImage = simulationDraw(Simulant(true),ParSeq(Simulant(false))).test
 
-  def top = new MainFrame{
-    title = "Image Display"
-    contents = new Label {
-      icon = new ImageIcon(image)
-    }
-  }
-}
 /*
 object Vector2DTest extends App
   val a = Vector2D(1.0, 2.0)
@@ -51,3 +41,4 @@ object Vector2DTest extends App
 
 /** Test for simlationDraw */
 */
+
