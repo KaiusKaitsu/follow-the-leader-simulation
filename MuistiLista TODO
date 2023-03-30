@@ -1,0 +1,25 @@
+  8.3.23  {
+  Muuta simulantit siten että ne ottavat configin parametrit KONSTRUKTIO PARAMETREINÄ jotta debugaaminen ja osittais testaaminen on mahdollista
+  Selvitä onko sama mahdollista muille olioille kuten simulation:nille
+  Tarkista toimiiko simulanttien liike logiikka mitenkään
+  Testaa simulationDraw:n Toimintaa simulanttien jälkeen.
+
+}
+23.3.23 {
+additional logic need for simulation:
+	1. Collision between area walls and other objects'
+	implementation: when two objects
+	2. speed limiter since only acceleration is limited at the moment
+	easily implementable into free movement logic
+	3. leader target randomization and mouse tracking
+	when leader pos = it's target pos rand new target. If mouse is on the area panel, leader reads mouse pos as its new target
+	4. EXTRA: make the followers target a larger following line so that the followers can form a nice line with proper parameters
+	followers remember x past positions of the leader.
+
+}
+30.3.23 {
+Things that are still waiting to be finnished for simulants
+  1. Working Collision between the simulants
+  3. Leaders target as mouse tracking
+
+}
