@@ -15,11 +15,11 @@ additional logic need for simulation:
 	when leader pos = it's target pos rand new target. If mouse is on the area panel, leader reads mouse pos as its new target
 	4. EXTRA: make the followers target a larger following line so that the followers can form a nice line with proper parameters
 	followers remember x past positions of the leader.
-
 }
+
 30.3.23 {
 Things that are still waiting to be finnished for simulants
   1. Working Collision between the simulants
-  3. Leaders target as mouse tracking
-
+  2. Leaders target as mouse tracking
 }
+

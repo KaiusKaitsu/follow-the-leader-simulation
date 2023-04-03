@@ -27,13 +27,18 @@ class Simulant(isLeader: Boolean):
   /** Gives the x and y pos of the simulant */
   def readPos: (Int,Int) = (position.x.toInt, position.y.toInt)
 
-  /** Collision logic for between the simulants */
-  private def collisionCheck() =
-    var apu = followers.find(i => (i.position - position).magnitude<5)
-    if apu.isDefined then apu.foreach(i =>
-      i.momentum = ((position-i.position).normalized)*i.momentum.magnitude
-      momentum = ((position- i.position ).normalized)*momentum.magnitude
-    )
+  /** Collision logic for between the simulants
+  private def collisionCheck(newPosition: Vector2D,newMomentum: Vector2D): Unit = {
+    // Check collision with other simulants
+    SimGUI.followers.filter(s => s != this).foreach { other =>
+      val distance = (newPosition - other.position).magnitude
+      if (distance < maxDistance) {
+        val directionToOther = (other.position - newPosition).normalized
+        val newPosition = position + directionToOther * (maxDistance - distance)
+        keepInBounds(newPosition, momentum)
+      }
+    }
+  }*/
 
   /** Logic to make the simulant bounce away from the simulation boundaries. */
   private def keepInBounds(newPosition: Vector2D, newMomentum: Vector2D)=
@@ -61,10 +66,10 @@ class Simulant(isLeader: Boolean):
     /** newMomentum implemented as follows: Earlier versions have been quite chaotic so to make the simulation smoother an additional brake has been added.
      * it basicly limits the maximum possible magnitude of newMomentum (hence momentum) while still allowing change in the momemtums direction, allowing smooth and controlled movements.
      * also when simulant is approaching target the maximum momentum decreases minimizing orbiting behaviour of the leader around its targets */
-    val newMomentum = (momentum + accelerationToTarget) * (2+(target - position).magnitude/1000)/(momentum +accelerationToTarget).magnitude
+    val newMomentum = (momentum + accelerationToTarget) * (1.5+(target - position).magnitude/1000)/(momentum +accelerationToTarget).magnitude
     val newPosition = position + newMomentum
     if isLeader&&((this.position-target).magnitude<10) then leaderTarget=Vector2D(rand.between(0,readMapSize._1),rand.between(0,readMapSize._2))
-    //collisionCheck()
+    //collisionCheck(newPosition,newMomentum)
     keepInBounds(newPosition,newMomentum)
 
   /** Randomizes the position of the simulant and zeroes the momentum. This is called from the SimGUI */
@@ -80,3 +85,4 @@ case class Vector2D(x: Double, y: Double):
   def /(scalar: Double) = Vector2D(x / scalar, y / scalar)
   def magnitude = scala.math.sqrt(scala.math.pow(x, 2) + scala.math.pow(y, 2))
   def normalized = this / magnitude
+  def dot(that: Vector2D): Double = x * that.x + y * that.y

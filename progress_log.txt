@@ -22,3 +22,32 @@ the project. In terms of scheduale im roughly in phase.
 
 Plan is to have a working simulation by 3.4, not perfect but debuggable. 
 }
+
+3.4.2023 {
+
+previous commit texts:
+  simulationDraw has been cut out following problems of updating the picture in the GUI.
+  Implementation of drawing the graphics changed to mimic the implementation of AsteroidGame in package Asteroids in OS2.
+  Now the simulation class and it's logic is debuggable.
+
+  things that I remember changing:
+    -Simulants now have collision logic with the simulation boundaries
+    -Simulants movement logic got a revamp, now better (and smoother) than ever
+    -GUI got a clock and runs with it updating automatically + a FPS counter for debugging and benchmarking. Glad to say that ParSeq allows even 1000 followers to run with normal fps of 60. 10 000 followers do tank the performance to 14 fps on a desktop pc.
+    -And also added todo list and known bugs text files to version control
+
+At this point there is only two big features to implement, the ability to change the simulation and file system.
+For file system JSON tools from playframework for scala will be used (https://www.playframework.com/documentation/2.8.x/ScalaJson) will be used.
+Still learning the documentation but things are going nicely.
+
+Aside from changing the simulation settigns from loading a JSON file, userInput will be changeable from the GUI that is still to be implemented.
+This should be relatively straight forward but it is to be seen.
+
+Also some things are still to be implemented like collisions between the simulants and mouse tracking for leader.
+
+Admitedly there hasnt been to many documented tests and such but many things have been checked with the GUI. For example the update() method was updated after determining the movement
+of simulants wasnt quite like planed. But the fps counter is purely for testing so there is that. More testing can be expected with the JSON reads and writes
+and the setting changing from GUI.
+
+Overall project is coming together quite nicely. I'm expecting to be able to turn the project in a week prior but the program quality is the priority.
+}

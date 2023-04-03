@@ -11,7 +11,7 @@ import scala.concurrent.*
 import java.awt.{Color, Graphics2D, RenderingHints}
 import java.awt.event.{ActionEvent, ActionListener}
 import java.awt.geom.Ellipse2D
-
+import scala.collection.mutable.HashMap
 
 object SimGUI extends SimpleSwingApplication {
 
@@ -33,7 +33,9 @@ object SimGUI extends SimpleSwingApplication {
 
   /** main frame is the main window */
   def top: Frame = new MainFrame:
+
     title = "Follow the leader sim"
+    resizable = false
 
     /** Area panel is the visual part of the simulation. It draws the simulants to a map with Graphics2D and even counts the frames for debugging and benchmarking purposes */
     val areaPanel = new BoxPanel(Orientation.Vertical){
@@ -47,6 +49,7 @@ object SimGUI extends SimpleSwingApplication {
         followers.foreach(i => pic.fill(Ellipse2D.Double(i.readPos._1, i.readPos._2, 10, 10)))
         pic.setColor(Color.BLUE)
         pic.fill(Ellipse2D.Double(leader.readPos._1, leader.readPos._2, 10, 10))
+        /** fps counter */
         val now = System.currentTimeMillis()
         val elapsed = now - lastUpdate
         if (elapsed > 1000)
@@ -54,40 +57,51 @@ object SimGUI extends SimpleSwingApplication {
           frameCount = 0
           lastUpdate = now
         pic.setColor(Color.WHITE)
-        pic.drawString(s"Frame rate: $frameRate", 10, 20)
-    }
+        pic.drawString(s"Frame rate: $frameRate", 10, 20)}
 
     /** Settings panel is the other half of the GUI, this panel hosts most of the interactive bits for the user to change the simulation. As of 30.3, most of the things here are place holders */
     val settingsPanel = new BoxPanel(Orientation.Vertical):
-      preferredSize = new Dimension(settingsWidth, settingsHeight)
-      for i <- 1 to 8 do
-        contents += new BoxPanel(Orientation.Horizontal):
-          contents += new Label(s"Setting $i: ")
-          contents += new TextField(10)
-        contents += Swing.VStrut(5)
-      val step =  new Button("One step")
-      val reboot = new Button("restart")
-      val pauseb = new Button("pause/play")
-      var pauseIcon = new Label("paused")
-      //contents += pauseIcon
-      contents += pauseb
-      contents += reboot
-      contents += step
+        preferredSize = new Dimension(settingsWidth, settingsHeight)
+        
+        val boxTxt = "Please write here"
+        val leaderMass = new Label("Leader mass")
+        val leaderMassTxt = new TextField(boxTxt, 1)
+        val followerMass = new Label("Follower mass")
+        val followerMassTxt = new TextField(boxTxt, 1)
+        val leaderSpeed = new Label("Leader speed")
+        val leaderSpeedTxt = new TextField(boxTxt, 1)
+        val followerSpeed = new Label("Follower speed")
+        val followerSpeedTxt = new TextField(boxTxt, 1)
+        val followerNum = new Label("Number of followers")
+        val followerNumTxt = new TextField(boxTxt, 1)
+        
+        val step = new Button("One step")
+        val reboot = new Button("restart")
+        val pauseb = new Button("pause/play")
+        var pauseIcon = new Label(if isPaused then "paused" else "running")
+        
+        contents ++= Seq(leaderMass, leaderMassTxt)
+        contents ++= Seq(followerMass, followerMassTxt)
+        contents ++= Seq(leaderSpeed,leaderSpeedTxt)
+        contents ++= Seq(followerSpeed, followerSpeedTxt)
+        contents ++= Seq(followerNum, followerNumTxt)
+        contents ++= Seq(pauseIcon, pauseb, reboot, step)
 
-      /** reactions to the buttons */
-      step.reactions += {
-        case ButtonClicked(_) =>
-          update()
-          areaPanel.repaint()}
+        /** reactions to the buttons */
+        step.reactions += {
+          case ButtonClicked(_) =>
+            project.SimGUI.update()
+            areaPanel.repaint()}
 
-      reboot.reactions += {
-        case ButtonClicked(_) =>
-          restart()
-          areaPanel.repaint()}
-      pauseb.reactions += {
-        case ButtonClicked(_) =>
-          pause()
-          if isPaused then pauseIcon.text = "paused" else pauseIcon.text = "playing"}
+        reboot.reactions += {
+          case ButtonClicked(_) =>
+            restart()
+            areaPanel.repaint()}
+
+        pauseb.reactions += {
+          case ButtonClicked(_) =>
+            pause()
+            if isPaused then pauseIcon.text = "paused" else pauseIcon.text = "playing"}
 
     /** splitPanel is simply used to orient the two previous panels properly.  */
     val splitPane = new SplitPane(Orientation.Vertical, settingsPanel, areaPanel):
@@ -99,20 +113,9 @@ object SimGUI extends SimpleSwingApplication {
     val listener = new ActionListener() {
       def actionPerformed(e: java.awt.event.ActionEvent) =
         update()
-        areaPanel.repaint()
-    }
-
+        areaPanel.repaint()}
     val timer = new javax.swing.Timer(5, listener)
     timer.start()
-
-
-
-  /** Changes the sim speed. Sim speed can be a integer from 1 to 10 */
-  def changeSimSpeed(x: Int) =
-    simSpeed = if x < 1 then 1 else if 10 < x then 10 else x
-
-  def sysClock(): Unit =
-    wait(100)
 
   def restart() =
     followers.foreach(_.restart())
@@ -123,10 +126,21 @@ object SimGUI extends SimpleSwingApplication {
     isPaused = !isPaused
 
   def update() =
-  // if isPaused then wait(10) else
+    // if isPaused then wait(10) else
      followers.foreach(_.update())
      leader.update()
 
 
 }
 
+/** val leaderMassSlide = new Slider{
+ * orientation = Orientation.Horizontal
+ * min = 10
+ * max = 100
+ * value = readLeaderMass
+ * majorTickSpacing = 10
+ * paintTicks = true
+ * minimumSize = new Dimension(100, 200)
+ * labels = Map((1,(new Label("test"))))
+ * paintLabels = true
+ * } */

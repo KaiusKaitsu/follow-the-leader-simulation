@@ -1,3 +1,3 @@
-Bug #1: Simulant may get stuck in the upper left hand corner.
-Bug #2: Resizing the window breaks the visuals.
+Bug #1: Simulant may get stuck in the upper left hand corner. --mostly fixed following simulant movement logic updates
+Bug #2: Resizing the window breaks the visuals. -- fixed after making the window not resizable
 Bug #3: Leader may get stuck orbiting a target point -- fixed with extra logic to simulant class "update()" value assingment "newMomentum"

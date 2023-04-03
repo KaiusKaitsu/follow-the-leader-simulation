@@ -11,13 +11,12 @@ object config:
   private var leaderMass: Int = 50
   private var folowerMass: Int = 50
 /** Gives the amount of followers in the sim, default is 2*/
-  private var followerNum: Int = 1000
+  private var followerNum: Int = 10
 /** map size gives the dimensions of the simulation area where the simulants live each side is limited from 100 to 500 pixels so largest map is 500x500 */
   private var MapSize: (Int, Int) = (800,800)
-/** if isPaused is true the simulation will halt the update() if restart is pressed the simulation is paused and randomized to start.*/
+/** if isPaused is true the simulation will halt the update().*/
   var isPaused: Boolean = true
-  var restart: Boolean = false
-
+ 
 /** here are the methods to change and read the settings*/
   def changeLeaderSpeed(x:Int): Unit =
     if x<1 then leaderSpeed = 1 else if x>100 then leaderSpeed = 100 else leaderSpeed = x
@@ -29,6 +28,7 @@ object config:
     if x < 1 then folowerSpeed = 1 else if x > 10 then folowerSpeed = 10 else folowerSpeed = x
   def changeFollowerNum(x: Int): Unit =
     if x < 1 then followerNum = 1 else if x > 10 then followerNum = 10 else followerNum = x
+    
   def readLeaderSpeed: Double = leaderSpeed
   def readFollowerSpeed: Double = folowerSpeed
   def readLeaderMass: Int = leaderMass
