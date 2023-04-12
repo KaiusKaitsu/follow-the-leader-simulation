@@ -23,3 +23,7 @@ Things that are still waiting to be finnished for simulants
   2. Leaders target as mouse tracking
 }
 
+8.4.23 {
+Check the userÍnput and the allowed range of the values there, not all make sense, for example changing mass has small effect when compared to speed
+
+}

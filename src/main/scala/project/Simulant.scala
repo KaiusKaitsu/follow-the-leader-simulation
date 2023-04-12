@@ -11,7 +11,6 @@ class Simulant(isLeader: Boolean):
   private val rand = Random()
   private var position: Vector2D = Vector2D(rand.between(0,readMapSize._1),rand.between(0,readMapSize._2))
   private var momentum: Vector2D = Vector2D(0,0)
-  private var maxDistance = 5
   private var safeSpace = 5
   private var leaderTarget = Vector2D(rand.between(0,readMapSize._1),rand.between(0,readMapSize._2))
 
@@ -22,23 +21,10 @@ class Simulant(isLeader: Boolean):
   private def mass: Int = if isLeader then readLeaderMass else readFollowerMass
 
   /** Mass of the simulant */
-  private def speed: Double = if isLeader then readLeaderSpeed else readFollowerSpeed
+  private def speed: Double = if isLeader then readLeaderSpeed/10.0 else readFollowerSpeed/10.0
 
   /** Gives the x and y pos of the simulant */
   def readPos: (Int,Int) = (position.x.toInt, position.y.toInt)
-
-  /** Collision logic for between the simulants
-  private def collisionCheck(newPosition: Vector2D,newMomentum: Vector2D): Unit = {
-    // Check collision with other simulants
-    SimGUI.followers.filter(s => s != this).foreach { other =>
-      val distance = (newPosition - other.position).magnitude
-      if (distance < maxDistance) {
-        val directionToOther = (other.position - newPosition).normalized
-        val newPosition = position + directionToOther * (maxDistance - distance)
-        keepInBounds(newPosition, momentum)
-      }
-    }
-  }*/
 
   /** Logic to make the simulant bounce away from the simulation boundaries. */
   private def keepInBounds(newPosition: Vector2D, newMomentum: Vector2D)=

@@ -5,12 +5,13 @@ import project.Simulant
 import project.config.*
 
 import scala.swing.*
-import scala.swing.event.ButtonClicked
+import scala.swing.event.{ButtonClicked, ValueChanged}
 import scala.collection.parallel.immutable.ParSeq
 import scala.concurrent.*
 import java.awt.{Color, Graphics2D, RenderingHints}
 import java.awt.event.{ActionEvent, ActionListener}
 import java.awt.geom.Ellipse2D
+import javax.swing.plaf.SliderUI
 import scala.collection.mutable.HashMap
 
 object SimGUI extends SimpleSwingApplication {
@@ -62,36 +63,31 @@ object SimGUI extends SimpleSwingApplication {
     /** Settings panel is the other half of the GUI, this panel hosts most of the interactive bits for the user to change the simulation. As of 30.3, most of the things here are place holders */
     val settingsPanel = new BoxPanel(Orientation.Vertical):
         preferredSize = new Dimension(settingsWidth, settingsHeight)
-        
+
         val boxTxt = "Please write here"
-        val leaderMass = new Label("Leader mass")
-        val leaderMassTxt = new TextField(boxTxt, 1)
-        val followerMass = new Label("Follower mass")
-        val followerMassTxt = new TextField(boxTxt, 1)
-        val leaderSpeed = new Label("Leader speed")
-        val leaderSpeedTxt = new TextField(boxTxt, 1)
-        val followerSpeed = new Label("Follower speed")
-        val followerSpeedTxt = new TextField(boxTxt, 1)
         val followerNum = new Label("Number of followers")
         val followerNumTxt = new TextField(boxTxt, 1)
         
         val step = new Button("One step")
         val reboot = new Button("restart")
-        val pauseb = new Button("pause/play")
-        var pauseIcon = new Label(if isPaused then "paused" else "running")
+        val pauseb = new Button("paused")
         
-        contents ++= Seq(leaderMass, leaderMassTxt)
-        contents ++= Seq(followerMass, followerMassTxt)
-        contents ++= Seq(leaderSpeed,leaderSpeedTxt)
-        contents ++= Seq(followerSpeed, followerSpeedTxt)
+        contents += createSlider("Leader mass", readLeaderMass, changeLeaderMass, 1, 100)
+        contents += createSlider("Follower mass", readFollowerMass, changeFollowerMass, 1, 100)
+        contents += createSlider("Leader speed", readLeaderSpeed, changeLeaderSpeed, 1, 100)
+        contents += createSlider("Follower speed", readFollowerSpeed, changeFollowerSpeed, 1, 100)
         contents ++= Seq(followerNum, followerNumTxt)
-        contents ++= Seq(pauseIcon, pauseb, reboot, step)
+        contents += createSlider("Simulation speed", readSimSpeed, timer.setDelay, 1, 100)
+        contents ++= Seq(pauseb, reboot, step)
+
+
 
         /** reactions to the buttons */
         step.reactions += {
           case ButtonClicked(_) =>
             project.SimGUI.update()
-            areaPanel.repaint()}
+            areaPanel.repaint()
+        }
 
         reboot.reactions += {
           case ButtonClicked(_) =>
@@ -101,7 +97,7 @@ object SimGUI extends SimpleSwingApplication {
         pauseb.reactions += {
           case ButtonClicked(_) =>
             pause()
-            if isPaused then pauseIcon.text = "paused" else pauseIcon.text = "playing"}
+            if isPaused then pauseb.text = "paused" else pauseb.text = "playing"}
 
     /** splitPanel is simply used to orient the two previous panels properly.  */
     val splitPane = new SplitPane(Orientation.Vertical, settingsPanel, areaPanel):
@@ -112,9 +108,10 @@ object SimGUI extends SimpleSwingApplication {
   /** timing logic for the animation is here, timer ticks every 5 ms and it allows a smooth and pleasant movement for the areaPanel */
     val listener = new ActionListener() {
       def actionPerformed(e: java.awt.event.ActionEvent) =
+        if isPaused then Thread.sleep(10) else {
         update()
-        areaPanel.repaint()}
-    val timer = new javax.swing.Timer(5, listener)
+        areaPanel.repaint()}}
+    val timer = new javax.swing.Timer(readSimSpeed, listener)
     timer.start()
 
   def restart() =
@@ -122,25 +119,38 @@ object SimGUI extends SimpleSwingApplication {
     leader.restart()
 
   def pause() =
-    wait(10)
     isPaused = !isPaused
 
   def update() =
-    // if isPaused then wait(10) else
      followers.foreach(_.update())
      leader.update()
 
 
-}
+class createSlider(name1: String, read: Int, write: Int => Unit, minn: Int, maxx: Int) extends BoxPanel(Orientation.Vertical){
 
-/** val leaderMassSlide = new Slider{
- * orientation = Orientation.Horizontal
- * min = 10
- * max = 100
- * value = readLeaderMass
- * majorTickSpacing = 10
- * paintTicks = true
- * minimumSize = new Dimension(100, 200)
- * labels = Map((1,(new Label("test"))))
- * paintLabels = true
- * } */
+  val slider = new Slider {
+    orientation = Orientation.Horizontal
+    min = minn
+    max = maxx
+    value = read
+    paintTicks = true
+    minimumSize = new Dimension(100, 200)
+  }
+
+  val label = new Label {
+    text = s"$name1  =  ${slider.value.toString} "
+  }
+  // listen for changes to the slider's value
+  listenTo(slider)
+
+  // update the label and configVar when the slider's value changes
+  reactions += {
+    case a: ValueChanged =>
+      write(slider.value)
+      label.text = s"$name1  =  ${slider.value.toString}"
+  }
+  contents += label
+  contents += slider
+  border = Swing.EmptyBorder(10, 10, 10, 10)
+}
+}
