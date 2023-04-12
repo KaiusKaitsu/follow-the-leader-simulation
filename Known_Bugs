@@ -1,3 +1,5 @@
 Bug #1: Simulant may get stuck in the upper left hand corner. --mostly fixed following simulant movement logic updates
 Bug #2: Resizing the window breaks the visuals. -- fixed after making the window not resizable
 Bug #3: Leader may get stuck orbiting a target point -- fixed with extra logic to simulant class "update()" value assingment "newMomentum"
+Bug #4: Adjusting the sliders created with 'createSlider' class will drop the fps to half. 
+  Prob fixable with threads or making so it updates when user isnt holding the slider but kinda low prio atm

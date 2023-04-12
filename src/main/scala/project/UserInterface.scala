@@ -2,7 +2,7 @@ package project
 
 import project.*
 import project.Simulant
-import project.config.*
+import project.configS
 
 import scala.swing.*
 import scala.swing.event.{ButtonClicked, ValueChanged}
@@ -17,10 +17,10 @@ import scala.collection.mutable.HashMap
 object SimGUI extends SimpleSwingApplication {
 
   /** for GUI */
-  private val areaWidth = readMapSize._1
-  private val areaHeight = readMapSize._2
-  private val settingsWidth = readMapSize._1/2
-  private val settingsHeight = readMapSize._2
+  private val areaWidth = configS.readMapSize._1
+  private val areaHeight = configS.readMapSize._2
+  private val settingsWidth = configS.readMapSize._1/2
+  private val settingsHeight = configS.readMapSize._2
 
   /** for the FPS counter */
   private var frameCount = 0
@@ -29,8 +29,10 @@ object SimGUI extends SimpleSwingApplication {
 
   /** Stuff for the sim itself */
   var leader: Simulant = Simulant(true)
-  var followers: ParSeq[Simulant] = ParSeq.fill(readFollowerNum)(Simulant(false))
-  private var simSpeed: Int = 1
+  var followers: ParSeq[Simulant] = ParSeq.fill(configS.readFollowerNum)(Simulant(false))
+
+  /** for choosing files */
+  val chooser = FileReader.fileChooserWindow
 
   /** main frame is the main window */
   def top: Frame = new MainFrame:
@@ -60,34 +62,40 @@ object SimGUI extends SimpleSwingApplication {
         pic.setColor(Color.WHITE)
         pic.drawString(s"Frame rate: $frameRate", 10, 20)}
 
-    /** Settings panel is the other half of the GUI, this panel hosts most of the interactive bits for the user to change the simulation. As of 30.3, most of the things here are place holders */
+    /** Settings panel is the other half of the GUI, this panel hosts most of the interactive bits for the user to change the simulation. */
     val settingsPanel = new BoxPanel(Orientation.Vertical):
         preferredSize = new Dimension(settingsWidth, settingsHeight)
 
+      /** Here are the controlls for the usage of the FileReader */
         val boxTxt = "Please write here"
-        val followerNum = new Label("Number of followers")
-        val followerNumTxt = new TextField(boxTxt, 1)
+        val fileReadInput = new Label("Path to .json config file")
+        val fileReadTxt = new TextField(boxTxt) //write the path of the wanted configS file here
+        val loadButton = new Button("Load file") //actually loads the file specified in the txt field
+        val findButton = new Button("File explorer") // allows user to browse with file explorer to find the wanted configS file. Doesnt actually load the file only writes it in the txt field
+        val feedback = new Label("No file loaded") // gives feedback when user uses the loadButton. Gives hints like "file not found" or "file loaded succesfully" etc
+        feedback.foreground = Color.RED
         
         val step = new Button("One step")
         val reboot = new Button("restart")
         val pauseb = new Button("paused")
         
-        contents += createSlider("Leader mass", readLeaderMass, changeLeaderMass, 1, 100)
-        contents += createSlider("Follower mass", readFollowerMass, changeFollowerMass, 1, 100)
-        contents += createSlider("Leader speed", readLeaderSpeed, changeLeaderSpeed, 1, 100)
-        contents += createSlider("Follower speed", readFollowerSpeed, changeFollowerSpeed, 1, 100)
-        contents ++= Seq(followerNum, followerNumTxt)
-        contents += createSlider("Simulation speed", readSimSpeed, timer.setDelay, 1, 100)
+        val a = createSlider("Leader mass", configS.readLeaderMass, configS.changeLeaderMass, 1, 100, false)
+        val b = createSlider("Follower mass", configS.readFollowerMass, configS.changeFollowerMass, 1, 100, false)
+        val c = createSlider("Leader speed", configS.readLeaderSpeed, configS.changeLeaderSpeed, 1, 100, false)
+        val d = createSlider("Follower speed", configS.readFollowerSpeed, configS.changeFollowerSpeed, 1, 100, false)
+        val e = createSlider("Follower number", configS.readFollowerNum, configS.changeFollowerNum, 1, 100, true)
+        val f = createSlider("Simulation speed", configS.readSimSpeed, timer.setDelay, 1, 100, false)
+        val sliders = Seq(c,d,a,b,e,f)
+
+        contents ++= sliders
         contents ++= Seq(pauseb, reboot, step)
-
-
+        contents ++= Seq(fileReadInput, fileReadTxt, loadButton, findButton, feedback)
 
         /** reactions to the buttons */
         step.reactions += {
           case ButtonClicked(_) =>
             project.SimGUI.update()
-            areaPanel.repaint()
-        }
+            areaPanel.repaint()}
 
         reboot.reactions += {
           case ButtonClicked(_) =>
@@ -97,7 +105,24 @@ object SimGUI extends SimpleSwingApplication {
         pauseb.reactions += {
           case ButtonClicked(_) =>
             pause()
-            if isPaused then pauseb.text = "paused" else pauseb.text = "playing"}
+            if configS.isPaused then pauseb.text = "paused" else pauseb.text = "playing"}
+
+        loadButton.reactions += {
+         case ButtonClicked(_) =>
+           FileReader.loadSettings()
+           a.slider.value = configS.readLeaderMass
+           b.slider.value = configS.readFollowerMass
+           c.slider.value = configS.readLeaderSpeed
+           d.slider.value = configS.readFollowerSpeed
+           e.slider.value = configS.readFollowerNum
+           f.slider.value = configS.readSimSpeed
+          }
+
+        findButton.reactions += {
+          case ButtonClicked(_) =>
+            chooser.visible = true }
+
+
 
     /** splitPanel is simply used to orient the two previous panels properly.  */
     val splitPane = new SplitPane(Orientation.Vertical, settingsPanel, areaPanel):
@@ -108,25 +133,27 @@ object SimGUI extends SimpleSwingApplication {
   /** timing logic for the animation is here, timer ticks every 5 ms and it allows a smooth and pleasant movement for the areaPanel */
     val listener = new ActionListener() {
       def actionPerformed(e: java.awt.event.ActionEvent) =
-        if isPaused then Thread.sleep(10) else {
+        if configS.isPaused then Thread.sleep(10) else {
         update()
         areaPanel.repaint()}}
-    val timer = new javax.swing.Timer(readSimSpeed, listener)
+
+    val timer = new javax.swing.Timer(configS.readSimSpeed, listener)
     timer.start()
 
   def restart() =
-    followers.foreach(_.restart())
+    followers = ParSeq.fill(configS.readFollowerNum)(Simulant(false))
     leader.restart()
 
   def pause() =
-    isPaused = !isPaused
+    configS.isPaused = !configS.isPaused
 
   def update() =
      followers.foreach(_.update())
      leader.update()
 
 
-class createSlider(name1: String, read: Int, write: Int => Unit, minn: Int, maxx: Int) extends BoxPanel(Orientation.Vertical){
+/** This is a class to easily create many sliders for the GUI without repetition. Constructor "write" takes a method from userInput to change the values for the simulation. */
+private class createSlider(name1: String, var read: Int, var write: Int => Unit, minn: Int, maxx: Int, reqRestart: Boolean) extends BoxPanel(Orientation.Vertical){
 
   val slider = new Slider {
     orientation = Orientation.Horizontal
@@ -138,19 +165,19 @@ class createSlider(name1: String, read: Int, write: Int => Unit, minn: Int, maxx
   }
 
   val label = new Label {
-    text = s"$name1  =  ${slider.value.toString} "
-  }
-  // listen for changes to the slider's value
+    text = s"$name1  =  ${slider.value.toString} "}
+
   listenTo(slider)
 
-  // update the label and configVar when the slider's value changes
   reactions += {
     case a: ValueChanged =>
-      write(slider.value)
-      label.text = s"$name1  =  ${slider.value.toString}"
-  }
+     write(slider.value)
+     label.text = s"$name1  =  ${slider.value.toString}"
+     if reqRestart then restart()}
   contents += label
   contents += slider
-  border = Swing.EmptyBorder(10, 10, 10, 10)
-}
-}
+
+  def reload() =
+    slider.value = read
+    label.text = s"$name1  =  ${read.toString}"
+}}

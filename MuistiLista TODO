@@ -25,5 +25,13 @@ Things that are still waiting to be finnished for simulants
 
 8.4.23 {
 Check the userÍnput and the allowed range of the values there, not all make sense, for example changing mass has small effect when compared to speed
-
 }
+
+12.4.23 {
+Last stretch going strong, things to implement/finish
+  1. FileReader - Has had a decent start. Many things still to be done but road is clear. Biggest things: exceptions, json parsing and writing, how to find a file (GUI)
+  2. Simulant - Basically ready. If there is time some tweaking of the movement logic could be uselfull but it would most likely be superficial tinkering. 
+  3. userInput - Had a bit of an overhall to be ready for the FileReader testing but should be ready. Still likely that is will be lightly changed. 
+  4. SimGUI - Heart of the program, will see some visual updates if there is time. It works quite nice, just some minor things like adjusting a slider lags the whole system.
+Just remember to do some automated tests. They are long overdue!!!
+} 
