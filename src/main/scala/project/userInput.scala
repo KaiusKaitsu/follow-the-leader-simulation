@@ -1,26 +1,39 @@
 package project
 
 import project.Vector2D
+import java.io.{File, PrintWriter,BufferedWriter}
+import play.api.libs.json.*
+import play.api.libs.functional.syntax._
 
 val configS = configGeneric(50,50,50,50,10,(800,800),5)
 
 
-class configGeneric(lSpeed: Int, fSpeed: Int, lMass: Int, fMass: Int, fNum: Int, map: (Int,Int), simS: Int):
-  /** speed gives the amount of pixels that the simulant accelerates per clock cycle. it is a number from 1 to 100 , default being 50.
-   * 1 "speed" accelerates 1 "mass" per cycle to speed of 1 pixel per cycle */
-  private var leaderSpeed: Int = 1
-  private var folowerSpeed: Int = 2
-  /** determines the masses of the Simulants. Allowed mass is from 1 to 10, default 5 */
-  private var leaderMass: Int = 3
-  private var folowerMass: Int = 4
-  /** Gives the amount of followers in the sim, default is 2 */
-  private var followerNum: Int = 5
-  /** map size gives the dimensions of the simulation area where the simulants live each side is limited from 100 to 500 pixels so largest map is 500x500 */
-  private var MapSize: (Int, Int) = (800, 800)
-  /** if isPaused is true the simulation will halt the update(). */
+class configGeneric(var leaderSpeed: Int, var folowerSpeed: Int, var leaderMass: Int, var folowerMass: Int, var followerNum: Int, var MapSize: (Int,Int), var simSpeed: Int):
+  
   var isPaused: Boolean = true
-  /** Sim refresh rate in nanoseconds */
-  private var simSpeed: Int = 6
+
+
+  implicit val format: Format[configGeneric] = new Format[configGeneric]:
+    def reads(json: JsValue): JsResult[configGeneric] = 
+      val leaderSpeed = (json \ "leaderSpeed").as[Int]
+      val followerSpeed = (json \ "followerSpeed").as[Int]
+      val leaderMass = (json \ "leaderMass").as[Int]
+      val followerMass = (json \ "followerMass").as[Int]
+      val followerNum = (json \ "followerNum").as[Int]
+      val mapSize = (json \ "MapSize").as[(Int, Int)]
+      val simSpeed = (json \ "simSpeed").as[Int]
+      JsSuccess(new configGeneric(leaderSpeed, followerSpeed, leaderMass, followerMass, followerNum, mapSize, simSpeed))
+    
+
+    def writes(config: configGeneric): JsValue = Json.obj(
+      "leaderSpeed" -> config.leaderSpeed,
+      "followerSpeed" -> config.folowerSpeed,
+      "leaderMass" -> config.leaderMass,
+      "followerMass" -> config.folowerMass,
+      "followerNum" -> config.followerNum,
+      "MapSize" -> config.MapSize,
+      "simSpeed" -> config.simSpeed)
+  
 
   /** here are the methods to change and read the settings */
   def changeLeaderSpeed(x: Int): Unit =
@@ -69,14 +82,13 @@ class configGeneric(lSpeed: Int, fSpeed: Int, lMass: Int, fMass: Int, fNum: Int,
     changeMapSize(a.readMapSize._1, a.readMapSize._2)
     changeSimSpeed(a.readSimSpeed)
 
-  changeLeaderSpeed(lSpeed)
-  changeFollowerSpeed(fSpeed)
-  changeLeaderMass(lMass)
-  changeFollowerMass(fMass)
-  changeFollowerNum(fNum)
-  changeMapSize(map._1, map._2)
-  changeSimSpeed(simS)
-
+  changeLeaderSpeed(readLeaderSpeed)
+  changeFollowerSpeed(readFollowerSpeed)
+  changeLeaderMass(readLeaderMass)
+  changeFollowerMass(readFollowerMass)
+  changeFollowerNum(readFollowerNum)
+  changeMapSize(readMapSize._1, readMapSize._2)
+  changeSimSpeed(readSimSpeed)
 
 
 

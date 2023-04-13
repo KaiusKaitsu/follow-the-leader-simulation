@@ -8,6 +8,7 @@ import project.SimGUI.*
 
 class Simulant(isLeader: Boolean):
 
+
   /** Values of the simulant */
   private val rand = Random()
   private var position: Vector2D = Vector2D(rand.between(0,configS.readMapSize._1),rand.between(0,configS.readMapSize._2))

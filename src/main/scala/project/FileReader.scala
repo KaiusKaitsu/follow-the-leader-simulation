@@ -1,14 +1,16 @@
 package project
 
 import project.*
-import play.api.libs.json
 import project.configGeneric
+import project.configS.format
 import project.configS
 
 import scala.swing.*
 import scala.swing.event.{ButtonClicked, ValueChanged}
-import java.io.{File, PrintWriter}
+import java.io.{BufferedWriter, File, FileInputStream, PrintWriter}
 import play.api.libs.json.*
+import play.api.libs.json.Format.GenericFormat
+import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 
 import javax.swing.WindowConstants
 
@@ -16,33 +18,53 @@ import javax.swing.WindowConstants
 
 object FileReader:
 
-  var filePath: String = "fgsfds.jpg"
+  var filePath: String = "Saved config files/XD"
   val chooser = new FileChooser()
 
   val fileChooserWindow = new MainFrame:
-      title = "File Chooser"
-      contents = new BoxPanel(Orientation.Vertical):
-        contents += chooser
-        border = Swing.EmptyBorder(10)
-
+      title = "File explorer"
+      contents = chooser
   fileChooserWindow.pack()
 
-  def checkPath = ???
+  def getConfig(filename: String): Option[configGeneric] =
+    val file = new File(s"Saved config files/$filename")
+    if file.exists() && file.isFile then
+      val inputStream = new FileInputStream(file)
+      try
+        val json = Json.parse(inputStream)
+        Json.fromJson[configGeneric](json).asOpt
+      catch
+        case e: Exception => None
+      finally
+        inputStream.close()
+    else
+      None
 
-  def loadSettings() =
-    configS.fromSpecific(configGeneric(1,2,3,4,100,(800,800),5))
-    SimGUI.restart()
+  def read(filename: String): Boolean =
 
-  def read(filePath: String): JsValue = 
-    val jsonString = scala.io.Source.fromFile(filePath).mkString
-    Json.parse(jsonString)
+    val config = getConfig(filename)
+    if config.isEmpty then
+      false
+    else
+      configS.fromSpecific(config.get)
+      SimGUI.restart()
+      true
 
-  def write(filePath: String, data: JsValue): Unit = 
-    val file = new File(filePath)
-    val writer = new PrintWriter(file)
-    try 
-      writer.write(Json.prettyPrint(data))
-    finally 
-      writer.close()
+
+  def write(filename: String): Boolean =
+    val file = new File(s"Saved config files/$filename")
+    if !file.exists() then
+      val json = Json.toJson(configS)
+      val writer = new PrintWriter(file)
+      try
+        writer.write(Json.prettyPrint(json))
+      catch
+        case e: Exception => false
+      finally
+        writer.close()
+      true
+    else
+      false
+
 
 

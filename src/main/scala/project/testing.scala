@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage
 import javax.swing.ImageIcon
 import project.Simulant
 import scala.collection.parallel.immutable.ParSeq
+import project.FileReader
 
 /** TestImage is used to test created and external images to determine how well simulationDraw works*/
 
@@ -42,3 +43,14 @@ object Vector2DTest extends App
 /** Test for simlationDraw */
 */
 
+object quicky extends App:
+  val x = FileReader.getConfig("81 76 49 60 10 5")
+  if x.isDefined then println("dad") else println("död")
+  println(x.get.readLeaderSpeed)
+  println(x.get.readFollowerSpeed)
+  println(x.get.readLeaderMass)
+  println(x.get.readFollowerMass)
+  println(x.get.readFollowerNum)
+  println(x.get.readMapSize)
+  println(x.get.readSimSpeed)
+  sys.exit(0)
