@@ -1,17 +1,21 @@
 package project
 
 import project.Vector2D
-import java.io.{File, PrintWriter,BufferedWriter}
 import play.api.libs.json.*
 import play.api.libs.functional.syntax._
 
-val configS = configGeneric(50,50,50,50,10,(800,800),5)
+/** this is a instance of the class configGeneric and its the only one that is used in the simulation.  */
 
+val configS = configGeneric(50,50,50,50,10,(700,700),5)
+
+/** Class configGeneric is how the data in the program is saved. ConfigGeneric is class because it needs to be one for the playframeworks json tools.
+ * It was previously a object but it did not work with json tools. This class is what is used to read and write and change the settigns of the program from the GUI */
 
 class configGeneric(var leaderSpeed: Int, var folowerSpeed: Int, var leaderMass: Int, var folowerMass: Int, var followerNum: Int, var MapSize: (Int,Int), var simSpeed: Int):
   
   var isPaused: Boolean = true
 
+/** format is for the json tools to implicitly tell how to write and parse these values to json format. */
 
   implicit val format: Format[configGeneric] = new Format[configGeneric]:
     def reads(json: JsValue): JsResult[configGeneric] = 
@@ -73,21 +77,23 @@ class configGeneric(var leaderSpeed: Int, var folowerSpeed: Int, var leaderMass:
 
   def readMapSize: (Int, Int) = MapSize
 
+  /** since only configS instance is used in the simulation this is how it can be changed easily.  */
+  
   def fromSpecific(a: configGeneric) =
     changeLeaderSpeed(a.readLeaderSpeed)
     changeFollowerSpeed(a.readFollowerSpeed)
     changeLeaderMass(a.readLeaderMass)
     changeFollowerMass(a.readFollowerMass)
     changeFollowerNum(a.readFollowerNum)
-    changeMapSize(a.readMapSize._1, a.readMapSize._2)
     changeSimSpeed(a.readSimSpeed)
 
+  /** when a new configGeneric is created these lines make sure that the given values are valid. */
+  
   changeLeaderSpeed(readLeaderSpeed)
   changeFollowerSpeed(readFollowerSpeed)
   changeLeaderMass(readLeaderMass)
   changeFollowerMass(readFollowerMass)
   changeFollowerNum(readFollowerNum)
-  changeMapSize(readMapSize._1, readMapSize._2)
   changeSimSpeed(readSimSpeed)
 
 

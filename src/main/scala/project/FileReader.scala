@@ -14,18 +14,12 @@ import play.api.libs.json.OFormat.oFormatFromReadsAndOWrites
 
 import javax.swing.WindowConstants
 
-/** This is the object to read and write files. It also provides a GUI window for easier usage */
+/** This is the object to read and write files. It also provides a GUI window for easier usage. The save location is a folder called "Saved config files" in the project root
+ * This object uses playframeworks json tools for scala to be help parsing and writing json. */
 
 object FileReader:
 
-  var filePath: String = "Saved config files/XD"
-  val chooser = new FileChooser()
-
-  val fileChooserWindow = new MainFrame:
-      title = "File explorer"
-      contents = chooser
-  fileChooserWindow.pack()
-
+  /** getConfig gives an optioned configGeneric from a filename if it exists in the folder else None. Reading files works with good ol' java */
   def getConfig(filename: String): Option[configGeneric] =
     val file = new File(s"Saved config files/$filename")
     if file.exists() && file.isFile then
@@ -40,6 +34,7 @@ object FileReader:
     else
       None
 
+  /** reads a given file with getConfig to actually apply the settings to the simulation (if the read was succesfull). returns if the read was succesfull or not */
   def read(filename: String): Boolean =
 
     val config = getConfig(filename)
@@ -50,7 +45,7 @@ object FileReader:
       SimGUI.restart()
       true
 
-
+  /** writes a new file with a name to "Saved config file" folder and returns true. If there exists a file with a certain name then it returns false and no writing has taken place. */
   def write(filename: String): Boolean =
     val file = new File(s"Saved config files/$filename")
     if !file.exists() then
@@ -65,6 +60,9 @@ object FileReader:
       true
     else
       false
+
+end FileReader
+
 
 
 

@@ -35,3 +35,13 @@ Last stretch going strong, things to implement/finish
   4. SimGUI - Heart of the program, will see some visual updates if there is time. It works quite nice, just some minor things like adjusting a slider lags the whole system.
 Just remember to do some automated tests. They are long overdue!!!
 } 
+17.4.23{
+Priority is to be able to submit the project a week in advance on the 19th.
+things to do:
+  1. write unit tests
+  2. remove file explorer --done
+  3. resolve known bugs --done
+  4. clean and commet the code --done
+  5. write the docx
+  6. zip the project and test it on another computer
+  7. Submit!
