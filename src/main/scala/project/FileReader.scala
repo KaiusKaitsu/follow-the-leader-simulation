@@ -35,18 +35,18 @@ object FileReader:
       None
 
   /** reads a given file with getConfig to actually apply the settings to the simulation (if the read was succesfull). returns if the read was succesfull or not */
-  def read(filename: String): Boolean =
+  def read(filename: String): String =
 
     val config = getConfig(filename)
     if config.isEmpty then
-      false
+      if  new File(s"Saved config files/$filename").exists() then "Corrupted file" else "File not found"
     else
       configS.fromSpecific(config.get)
       SimGUI.restart()
-      true
+      "succesfully loaded"
 
   /** writes a new file with a name to "Saved config file" folder and returns true. If there exists a file with a certain name then it returns false and no writing has taken place. */
-  def write(filename: String): Boolean =
+  def write(filename: String): String =
     val file = new File(s"Saved config files/$filename")
     if !file.exists() then
       val json = Json.toJson(configS)
@@ -54,12 +54,12 @@ object FileReader:
       try
         writer.write(Json.prettyPrint(json))
       catch
-        case e: Exception => false
+        case e: Exception => return "error"
       finally
         writer.close()
-      true
+      "success"
     else
-      false
+      "exists"
 
 end FileReader
 

@@ -137,7 +137,7 @@ object SimGUI extends SimpleSwingApplication:
         val d = createSlider("Follower speed", configS.readFollowerSpeed, configS.changeFollowerSpeed, 1, 100, false)
         val e = createSlider("Follower number", configS.readFollowerNum, configS.changeFollowerNum, 1, 100, true)
         val f = createSlider("Simulation speed", configS.readSimSpeed, timerHelper, 1, 100, false)
-        val sliders = ParSeq(c,d,a,b,e,f)
+        val sliders = Seq(c,d,a,b,e,f)
 
       /** Adding all the components to the settingsPanel */
         contents ++= sliders
@@ -167,31 +167,49 @@ object SimGUI extends SimpleSwingApplication:
         /** load a config file with name from fileReadTxt with FileReader */
         loadButton.reactions += {
          case ButtonClicked(_) =>
-           if FileReader.read(fileReadTxt.text) then
-             a.slider.value = configS.readLeaderMass
-             b.slider.value = configS.readFollowerMass
-             c.slider.value = configS.readLeaderSpeed
-             d.slider.value = configS.readFollowerSpeed
-             e.slider.value = configS.readFollowerNum
-             f.slider.value = configS.readSimSpeed
-             feedback.text = s"File '${fileReadTxt.text}' succesfully loaded"
-             feedback.foreground = Color(0,179,6)
-             else
+           FileReader.read(fileReadTxt.text) match
+             case "succesfully loaded" =>
+               a.slider.value = configS.readLeaderMass
+               b.slider.value = configS.readFollowerMass
+               c.slider.value = configS.readLeaderSpeed
+               d.slider.value = configS.readFollowerSpeed
+               e.slider.value = configS.readFollowerNum
+               f.slider.value = configS.readSimSpeed
+               feedback.text = s"File '${fileReadTxt.text}' succesfully loaded"
+               feedback.foreground = Color(0, 179, 6)
+             case "File not found" =>
                feedback.text = "File not found"
-               feedback.foreground = Color.RED}
+               feedback.foreground = Color.RED
+             case "Corrupted file" =>
+               feedback.text = "Corrupted file"
+               feedback.foreground = Color.RED
+             case _ =>
+               feedback.text = "Unknown error"
+               feedback.foreground = Color.RED
+        }
+
 
         /** Save the current settings to a json file with name saveName to project root folder "Saved config files" */
         save.reactions += {
           case ButtonClicked(_) =>
-            if FileReader.write(saveName.text) then
-              saveFeedback.text = "File writen succesfully"
-              saveFeedback.foreground = Color(0,179,6)
-            else
-              saveFeedback.text = "File with this name already exists"
-              saveFeedback.foreground = Color.RED
+            FileReader.write(saveName.text) match
+              case "success" =>
+                saveFeedback.text = "File writen succesfully"
+                saveFeedback.foreground = Color(0, 179, 6)
+              case "exists" =>
+                saveFeedback.text = "File with this name already exists"
+                saveFeedback.foreground = Color.RED
+              case "error" =>
+                saveFeedback.text = "Write error"
+                saveFeedback.foreground = Color.RED
+              case _ =>
+                saveFeedback.text = "Unknown error"
+                saveFeedback.foreground = Color.RED
+
           }
 
     end settingsPanel
+
 
     /** splitPanel is simply used to orient the two previous panels properly side by side */
     val splitPane = new SplitPane(Orientation.Vertical, settingsPanel, areaPanel):

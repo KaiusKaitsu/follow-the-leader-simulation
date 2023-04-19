@@ -1,0 +1,9 @@
+{
+  "leaderSpeed" : 39,
+  "followerSpeed" : 23,
+  "leaderMass" : 21,
+  "followerMss" : 63,
+  "followerNum" : 69,
+  "MapSize" : [ 700, 700 ],
+  "simSpeed" : 1
+}

@@ -15,7 +15,7 @@ class Simulant(isLeader: Boolean):
 
   /** Values of the simulant */
   private val rand = Random()
-  private var position: Vector2D = Vector2D(rand.between(0,configS.readMapSize._1),rand.between(0,configS.readMapSize._2))
+  private var position: Vector2D = Vector2D(rand.between(0,configS.readMapSize._1-10),rand.between(0,configS.readMapSize._2-10))
   private var momentum: Vector2D = Vector2D(0,0)
   private var leaderTarget = Vector2D(rand.between(0,configS.readMapSize._1),rand.between(0,configS.readMapSize._2))
 
@@ -95,7 +95,7 @@ class Simulant(isLeader: Boolean):
 
   /** Randomizes the position of the simulant and zeroes the momentum. This is called from the SimGUI */
   def restart() =
-    position = Vector2D(rand.between(0,configS.readMapSize._1),rand.between(0,configS.readMapSize._2))
+    position = Vector2D(rand.between(0,configS.readMapSize._1-10),rand.between(0,configS.readMapSize._2-10))
     momentum = Vector2D(0,0)
 
 /** this is the 2D vector physics that the simulants follow */
